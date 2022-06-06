@@ -1,0 +1,32 @@
+---
+- name : Set options for new node
+  hosts: nodes_testing
+  become: yes
+  
+  tasks: 
+  - name: Allow everything and enable UFW
+    community.general.ufw:
+      state: enabled
+      policy: allow
+
+  - name: Deny all incoming traffic
+    community.general.ufw:
+      rule: deny
+      direction: in
+
+  - name: Allow all outgoing traffic
+    community.general.ufw:
+      rule: allow
+      direction: out
+
+  - name: Limit connections on ssh to prevent brutforce
+    community.general.ufw:
+      rule: limit
+      port: ssh
+      proto: tcp
+
+  - name: Allow port range 44574-44575
+    community.general.ufw:
+      rule: allow
+      port: 44574:44575
+      proto: tcp
