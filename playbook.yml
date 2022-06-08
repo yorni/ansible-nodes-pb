@@ -1,69 +1,69 @@
 ---
-- name : Set options for new node
+- name: Set options for new node
   hosts: nodes_testing
   become: yes
-  
-  tasks: 
-  - name: Allow everything and enable UFW
-    community.general.ufw:
-      state: enabled
-      policy: allow
 
-  - name: Deny all incoming traffic
-    community.general.ufw:
-      rule: deny
-      direction: in
+  tasks:
+    - name: Allow everything and enable UFW
+      community.general.ufw:
+        state: enabled
+        policy: allow
 
-  - name: Allow all outgoing traffic
-    community.general.ufw:
-      rule: allow
-      direction: out
+    - name: Deny all incoming traffic
+      community.general.ufw:
+        rule: deny
+        direction: in
 
-  - name: Limit connections on ssh to prevent brutforce
-    community.general.ufw:
-      rule: limit
-      port: ssh
-      proto: tcp
+    - name: Allow all outgoing traffic
+      community.general.ufw:
+        rule: allow
+        direction: out
 
-  - name: Allow port range 44574-44575
-    community.general.ufw:
-      rule: allow
-      port: 44574:44575
-      proto: tcp
-  - name: Install aptitude
-    apt:
-      name: aptitude
-      state: latest
-      update_cache: true
+    - name: Limit connections on ssh to prevent brutforce
+      community.general.ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
 
-  - name: Install required system packages
-    apt:
-      pkg:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-        - python3-pip
-        - virtualenv
-        - python3-setuptools
-      state: latest
-      update_cache: true
+    - name: Allow port range 44574-44575
+      community.general.ufw:
+        rule: allow
+        port: 44574:44575
+        proto: tcp
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
 
-      - name: Add Docker GPG apt Key
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-  - name: Add Docker Repository
-    apt_repository:
-      repo: deb https://download.docker.com/linux/ubuntu focal stable
-      state: present
-  - name: Update apt and install docker-ce
-    apt:
-      name: docker-ce
-      state: latest
-      update_cache: true
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
 
-  - name: Install Docker Module for Python
-    pip:
-      name: docker
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
