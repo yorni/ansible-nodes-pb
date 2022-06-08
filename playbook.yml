@@ -71,5 +71,8 @@
     - name: Install Docker Module for Python
       pip:
         name: docker
-    - name: Initialize and Start Tableau Server
+    - name: Pull docker image
       shell: export CR_PAT={{ repo_key }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
+
+    - name: Start docker
+      shell: docker run -d --restart=always ghcr.io/vxxl-project/vxxl:fork
