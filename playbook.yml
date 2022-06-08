@@ -2,6 +2,10 @@
 - name: Set options for new node
   hosts: nodes_testing
   become: yes
+  gather_facts: false
+  vars_prompt:
+    - name: repo_key
+      prompt: Enter key for image repo
 
   tasks:
     - name: Allow everything and enable UFW
@@ -67,3 +71,5 @@
     - name: Install Docker Module for Python
       pip:
         name: docker
+    - name: Initialize and Start Tableau Server
+      shell: export CR_PAT={{ repo_key }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
