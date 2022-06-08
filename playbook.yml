@@ -74,5 +74,8 @@
     - name: Pull docker image
       shell: export CR_PAT={{ repo_key }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
 
+    - name: Clear images
+      shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
+
     - name: Start docker
-      shell: docker run -d --restart=always ghcr.io/vxxl-project/vxxl:fork
+      shell: docker run -d -p 44574-44576:44574-44576 -p 44477-44479:44477-44479 --restart=always  ghcr.io/vxxl-project/vxxl:fork
