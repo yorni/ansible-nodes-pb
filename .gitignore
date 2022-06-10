@@ -10,3 +10,5 @@ node_modules/
 *.csv
 workspace.code-workspace
 hosts.txt
+mongo/mongo-init.js
+mongodb/*.env

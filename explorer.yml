@@ -8,13 +8,50 @@
       prompt: Enter mongo pass
 
   tasks:
-    - name: Add mongo ppa key
-      shell: curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-    - name: Add mongo sources list
-      lineinfile:
-        line: "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/4.2 multiverse"
-        dest: /etc/apt/sources.list.d/mongodb.list
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-        create: yes
-    - name: Install mongo
-      apt: name=mongodb-org state=latest update_cache=yes
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+    - name: Creates directory for data
+      file:
+        path: /data/db
+        state: directory
+    - name: Creates directory for docker
+      file:
+        path: /home/docker
+        state: directory
+    - name: copy mongo docker files
+      copy: src=./mongo/ dest=/home/docker/mongo/ directory_mode=yes
