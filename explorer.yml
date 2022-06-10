@@ -10,3 +10,11 @@
   tasks:
     - name: Add mongo ppa key
       shell: curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+    - name: Add mongo sources list
+      lineinfile:
+        line: "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/4.2 multiverse"
+        dest: /etc/apt/sources.list.d/mongodb.list
+        state: present
+        create: yes
+    - name: Install mongo
+      apt: name=mongodb-org state=latest update_cache=yes
