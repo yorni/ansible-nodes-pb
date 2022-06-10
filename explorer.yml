@@ -6,6 +6,9 @@
   #  vars_prompt:
   #   - name: mongoPassword
   #      prompt: Enter mongo pass
+  vars:
+    NODEJS_VERSION: "12"
+    ansible_distribution_release: "xenial" #trusty
 
   tasks:
     - name: Install aptitude
@@ -65,13 +68,18 @@
         url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
         state: present
 
-    - name: "Add nodejs 12.x ppa for apt repo"
+    - name: Install the gpg key for nodejs LTS
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+
+    - name: Install the nodejs LTS repos
       apt_repository:
-        repo: deb https://deb.nodesource.com/node_12.x bionic main
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
         update_cache: yes
 
-    - name: "Install nodejs"
+    - name: Install the nodejs
       apt:
-        update_cache: yes
         name: nodejs
         state: present
