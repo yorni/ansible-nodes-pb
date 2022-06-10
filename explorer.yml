@@ -54,4 +54,8 @@
         path: /home/docker
         state: directory
     - name: copy mongo docker files
-      copy: src=./mongo/ dest=/home/docker/mongo/ directory_mode=yes
+      copy: src=./mongo/ dest=/home/docker/mongo/
+    - name: start mongo
+      community.docker.docker_compose:
+        project_src: /home/docker/mongo/
+        state: present
