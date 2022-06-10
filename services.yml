@@ -1,0 +1,11 @@
+---
+- name: run services on explorer
+  hosts: explorer
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: start mongo
+      community.docker.docker_compose:
+        project_src: /home/docker/mongo/
+        state: present
