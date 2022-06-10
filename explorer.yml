@@ -3,9 +3,9 @@
   hosts: explorer
   become: yes
   gather_facts: false
-  vars_prompt:
-    - name: mongoPassword
-      prompt: Enter mongo pass
+  #  vars_prompt:
+  #   - name: mongoPassword
+  #      prompt: Enter mongo pass
 
   tasks:
     - name: Install aptitude
