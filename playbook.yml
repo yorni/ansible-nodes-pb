@@ -84,6 +84,17 @@
         path: /home/testnet
         state: directory
 
+    - name: Add user
+      ansible.builtin.user:
+        name: vxxl
+        uid: 1000
+
+    - name: Set permissions mainnet
+      shell: chown -R vxxl /home/mainnet
+
+    - name: Set permissions testnet
+      shell: chown -R vxxl /home/testnet
+
     - name: Clear images
       shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
 
