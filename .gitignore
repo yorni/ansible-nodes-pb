@@ -11,4 +11,4 @@ node_modules/
 workspace.code-workspace
 hosts.txt
 mongo/mongo-init.js
-mongodb/*.env
+mongo/*.env
