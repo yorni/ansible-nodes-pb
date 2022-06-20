@@ -1,0 +1,87 @@
+name: Docker
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  push:
+    branches: ["fork"]
+    # Publish semver tags as releases.
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["fork"]
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Install the cosign tool except on PR
+      # https://github.com/sigstore/cosign-installer
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@d6a3abf1bdea83574e28d40543793018b6035605
+        with:
+          cosign-release: "v1.7.1"
+
+      # Workaround: https://github.com/docker/build-push-action/issues/461
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: executing SSH deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
+            export CR_PAT=${{ secrets.REPOSITORY_KEY }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
+            docker run -d -v /home/mainnet:/home/vxxl/.vxxl -p 44574:44574 -p 44477:44477  --restart=always  ghcr.io/vxxl-project/vxxl:fork
+            docker run -d -v /home/testnet:/home/vxxl/.vxxl -p 44575:44575 -p 44478:44478  --restart=always  ghcr.io/vxxl-project/vxxl:fork -testnet
