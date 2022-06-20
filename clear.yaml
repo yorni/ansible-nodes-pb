@@ -8,9 +8,6 @@
     - name: remove folders
       shell: rm -rf /home/testnet/ && rm -rf /home/mainnet/
 
-    - name: Clear images
-      shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
-
     - name: Creates directory for mainnet
       file:
         path: /home/mainnet
@@ -26,3 +23,5 @@
 
     - name: Set permissions testnet
       shell: chown -R vxxl /home/testnet
+    - name: Clear images
+      shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
