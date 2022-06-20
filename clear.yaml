@@ -6,7 +6,23 @@
 
   tasks:
     - name: remove folders
-      shell: rm -rf /home/testnet/* && rm -rf /home/mainnet/*
+      shell: rm -rf /home/testnet/ && rm -rf /home/mainnet/
 
     - name: Clear images
       shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
+
+    - name: Creates directory for mainnet
+      file:
+        path: /home/mainnet
+        state: directory
+
+    - name: Creates directory for testnet
+      file:
+        path: /home/testnet
+        state: directory
+
+    - name: Set permissions mainnet
+      shell: chown -R vxxl /home/mainnet
+
+    - name: Set permissions testnet
+      shell: chown -R vxxl /home/testnet
