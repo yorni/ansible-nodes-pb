@@ -1,0 +1,18 @@
+---
+- name: Set options for new node
+  hosts: nodes_testing
+  become: yes
+  gather_facts: false
+  vars_prompt:
+    - name: repo_key
+      prompt: Enter key for image repo
+
+  tasks:
+    - name: Clear images
+      shell: docker kill $(docker ps -q)
+
+    - name: Start docker mainnet
+      shell: docker run -d -v /home/mainnet:/home/vxxl/.vxxl -p 44574:44574 -p 44477:44477  --restart=always  ghcr.io/vxxl-project/vxxl:fork
+
+    - name: Start docker testnet
+      shell: docker run -d -v /home/testnet:/home/vxxl/.vxxl -p 44575:44575 -p 44478:44478  --restart=always  ghcr.io/vxxl-project/vxxl:fork -testnet -reindex  -reindex-chainstate
