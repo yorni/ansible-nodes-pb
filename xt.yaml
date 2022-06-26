@@ -40,7 +40,7 @@
       pip:
         name: docker
     - name: Pull docker image
-      shell: export CR_PAT={{ repo_key }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
+      shell: docker pull ghcr.io/vxxl-project/vxxl:fork
 
     - name: Creates directory for mainnet
       file:
