@@ -1,0 +1,76 @@
+---
+- name: Set options for new node
+  hosts: rpc_xt
+  become: yes
+  gather_facts: false
+  vars_prompt:
+    - name: repo_key
+      prompt: Enter key for image repo
+
+  tasks:
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+    - name: Pull docker image
+      shell: export CR_PAT={{ repo_key }} && echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin && docker pull ghcr.io/vxxl-project/vxxl:fork
+
+    - name: Creates directory for mainnet
+      file:
+        path: /home/mainnet
+        state: directory
+
+    - name: Creates directory for testnet
+      file:
+        path: /home/testnet
+        state: directory
+
+    - name: Add user
+      ansible.builtin.user:
+        name: vxxl
+        uid: 1000
+
+    - name: Set permissions mainnet
+      shell: chown -R vxxl /home/mainnet
+
+    - name: Set permissions testnet
+      shell: chown -R vxxl /home/testnet
+
+    - name: Set permissions testnet
+      shell: rm -rf /home/testnet/* && rm -rf /home/mainnet/*
+
+    - name: Clear images
+      shell: docker kill $(docker ps -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
+
+    # - name: Start docker mainnet
+    #   shell: docker run -d -v /home/mainnet:/home/vxxl/.vxxl -p 44574:44574 -p 44477:44477  --restart=always  ghcr.io/vxxl-project/vxxl:fork
+
+    # - name: Start docker testnet
+    #   shell: docker run -d -v /home/testnet:/home/vxxl/.vxxl -p 44575:44575 -p 44478:44478  --restart=always  ghcr.io/vxxl-project/vxxl:fork -testnet
